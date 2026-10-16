@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orpheus"
+version = "0.2.0"
+description = "Kerberoasting and AS-REP Roasting CLI based on Impacket"
+readme = "README.md"
+requires-python = ">=3.10"
+license-files = ["LICENSE"]
+dynamic = ["dependencies"]
+
+[project.scripts]
+orpheus = "orpheus:cli"
+
+[tool.setuptools]
+py-modules = ["orpheus", "orpheus_runtime", "orpheus_kerberos", "GetUserSPNs", "GetNPUsers"]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = ["lab: tests requiring the explicitly authorized Active Directory laboratory"]
