@@ -1,145 +1,145 @@
 # Orpheus
 
-Orpheus è un wrapper CLI e interattivo per Kerberoasting e AS-REP Roasting,
-basato su Impacket. Consente di scegliere le KDC options e l'etype richiesto
-(AES256 o RC4), mantenendolo distinto dalla credenziale usata per ottenere il
-TGT. Usarlo esclusivamente in ambienti autorizzati.
+Orpheus is a CLI and interactive wrapper for Kerberoasting and AS-REP Roasting,
+built on Impacket. It lets you choose KDC options and the requested encryption
+type (AES256 or RC4), independently of the credentials used to obtain the TGT.
+Use it only in authorized environments.
 
-## Modifiche rispetto all’originale
+## Changes from upstream
 
-Questa versione deriva da [TrustedSec/Orpheus](https://github.com/trustedsec/orpheus)
-e ne conserva le attribuzioni. Le principali modifiche sono:
+This version is derived from [TrustedSec/Orpheus](https://github.com/trustedsec/orpheus)
+and preserves its original attribution. The main changes are:
 
-- **Funzionalità:** AS-REP Roasting, CLI non interattiva con `--dry-run` e
-  opzioni per proxychains, oltre alla REPL originale.
-- **Compatibilità:** integrazione con Impacket 0.13.x e sostituzione del fork
-  completo `kerberosv5.py` con un modulo locale per le estensioni necessarie.
-- **Correzioni:** separazione fra credenziali TGT ed etype TGS richiesto,
-  validazione degli input, opzioni KDC decimali/hex coerenti e pacing anche
-  dopo i tentativi falliti.
-- **Affidabilità:** trasporto Kerberos TCP con timeout e letture complete,
-  output atomico, controllo delle sovrascritture e codici di uscita espliciti.
-- **Test e documentazione:** suite di regressione, test di laboratorio opt-in,
-  workflow CI e documentazione aggiornata.
+- **Features:** AS-REP Roasting, a non-interactive CLI with `--dry-run` and
+  proxychains options, alongside the original REPL.
+- **Compatibility:** Impacket 0.13.x integration and replacement of the full
+  `kerberosv5.py` fork with a local module containing the required extensions.
+- **Fixes:** separate TGT credentials and requested TGS encryption type,
+  input validation, consistent decimal/hex KDC options, and request pacing
+  after failed attempts.
+- **Reliability:** Kerberos TCP transport with timeouts and complete reads,
+  atomic output, overwrite protection, and explicit exit codes.
+- **Tests and documentation:** regression tests, opt-in laboratory tests,
+  CI workflows, and updated documentation.
 
-## Installazione
+## Installation
 
-Richiede Python 3.10+. Il file unico include le dipendenze di esecuzione e test.
-Installare preferibilmente in un ambiente virtuale:
+Requires Python 3.10+. A single requirements file includes runtime and test
+dependencies. Install in a virtual environment where possible:
 
 ```text
 python -m pip install .
 ```
 
-Con l'ambiente attivo, il comando `orpheus` è disponibile da qualsiasi cartella:
+With the environment active, the `orpheus` command is available from any directory:
 
 ```text
 orpheus --help
 ```
 
-Per lavorare sui sorgenti senza reinstallare dopo ogni modifica:
+To work on the source without reinstalling after each change:
 `python -m pip install -e .`.
 
 
-## Avvio rapido
+## Quick start
 
-Gli esempi seguenti usano valori fittizi. Kerberoasting con TGS AES256:
+The following examples use placeholder values. Kerberoasting with AES256 TGS:
 
 ```text
 orpheus --cred 'lab.local/user:password' --dcip 10.1.1.1 --file spns.txt --enc 18
 ```
 
-AS-REP Roasting senza autenticazione, da una lista utenti:
+Unauthenticated AS-REP Roasting using a username list:
 
 ```text
 orpheus --cred 'lab.local/' --dcip 10.1.1.1 --mode asrep --usersfile users.txt --file asrep.txt --enc 23
 ```
 
-Una lista utenti contiene un nome per riga. Gli script ignorano righe vuote e
-duplicati, preservando l'ordine della prima occorrenza.
+A username list contains one name per line. The scripts ignore blank lines and
+duplicates, preserving the order of the first occurrence.
 
-## CLI del wrapper
+## Wrapper CLI
 
 ```text
 orpheus --help
 ```
 
-| Flag | Scopo e default |
+| Flag | Purpose and default |
 | --- | --- |
-| `--cred` | Obbligatorio: `domain/user[:password]`; `domain/` per una lista AS-REP senza autenticazione. |
-| `--dcip` | Obbligatorio: indirizzo del domain controller. |
-| `--mode` | `kerb` (default) oppure `asrep`. |
-| `--file` | File hash, default `spns.txt` anche in modalità AS-REP. |
-| `--usersfile` | Lista utenti per `asrep`; aggiunge `-no-pass` al comando figlio. |
-| `--options` | Maschera unsigned a 32 bit, default `0x40810000`. |
-| `--enc` | Etype richiesto: `18` AES256 (default) oppure `23` RC4. |
-| `--sleep` | Secondi fra tentativi consecutivi, default `0`. |
-| `--jitter` | Variazione casuale intera di `±N` secondi, default `0`. |
-| `--overwrite` | Consente la sostituzione dell'output esistente. |
-| `--proxychains` | Anteposta esecuzione tramite `proxychains`, solo Linux; ignorata su Windows. |
-| `--pcconf` | Configurazione passata a `proxychains -f`. |
-| `-n`, `--dry-run` | Mostra il comando senza eseguirlo. |
+| `--cred` | Required: `domain/user[:password]`; use `domain/` for an unauthenticated AS-REP username list. |
+| `--dcip` | Required: domain controller address. |
+| `--mode` | `kerb` (default) or `asrep`. |
+| `--file` | Hash output file; defaults to `spns.txt`, including in AS-REP mode. |
+| `--usersfile` | Username list for `asrep`; adds `-no-pass` to the child command. |
+| `--options` | Unsigned 32-bit mask; defaults to `0x40810000`. |
+| `--enc` | Requested encryption type: `18` AES256 (default) or `23` RC4. |
+| `--sleep` | Seconds between consecutive attempts; defaults to `0`. |
+| `--jitter` | Random integer variation of `±N` seconds; defaults to `0`. |
+| `--overwrite` | Allow replacement of existing output. |
+| `--proxychains` | Prefix execution with `proxychains` on Linux; ignored on Windows. |
+| `--pcconf` | Configuration passed to `proxychains -f`. |
+| `-n`, `--dry-run` | Show the command without executing it. |
 
-## Modalità interattiva
+## Interactive mode
 
-Avviare senza argomenti:
+Start without arguments:
 
 ```text
 orpheus
 ```
 
-| Comando REPL | Effetto |
+| REPL command | Effect |
 | --- | --- |
-| `cred <valore>`, `dcip <valore>`, `file <percorso>` | Impostano credenziali, DC e output. |
-| `0` … `31` | Invertono il bit KDC indicato, numerato da sinistra. |
-| `hex <valore>` | Imposta la maschera KDC; accetta anche un intero decimale. |
-| `enc` | Alterna AES256 e RC4. |
-| `mode` | Alterna Kerberoasting e AS-REP Roasting. |
-| `usersfile <percorso>` | Imposta la lista utenti per AS-REP. |
-| `sleep <secondi>`, `jitter <secondi>` | Impostano il pacing. |
-| `overwrite` | Attiva/disattiva la sostituzione dell'output. |
-| `proxychains`, `pcconf <percorso>` | Attivano il prefisso Linux e ne impostano la configurazione. |
-| `command` | Mostra il comando costruito, incluse le credenziali. |
-| `run` | Esegue il comando corrente. |
-| `clear`, `help`, `exit` | Ridisegna lo schermo, mostra i comandi o termina. |
+| `cred <value>`, `dcip <value>`, `file <path>` | Set credentials, DC, and output. |
+| `0` … `31` | Toggle the specified KDC bit, numbered from the left. |
+| `hex <value>` | Set the KDC mask; also accepts a decimal integer. |
+| `enc` | Toggle AES256 and RC4. |
+| `mode` | Toggle Kerberoasting and AS-REP Roasting. |
+| `usersfile <path>` | Set the AS-REP username list. |
+| `sleep <seconds>`, `jitter <seconds>` | Set request pacing. |
+| `overwrite` | Toggle replacement of existing output. |
+| `proxychains`, `pcconf <path>` | Toggle the Linux prefix and set its configuration. |
+| `command` | Show the constructed command, including credentials. |
+| `run` | Execute the current command. |
+| `clear`, `help`, `exit` | Redraw the screen, show commands, or exit. |
 
 
-## Codici di uscita
+## Exit codes
 
-| Codice | Significato |
+| Code | Meaning |
 | ---: | --- |
-| `0` | Tutti i target richiesti sono riusciti, oppure enumerazione completata anche senza corrispondenze. |
-| `1` | Almeno un risultato e almeno un target fallito o saltato. |
-| `2` | Input, file locale o combinazione di opzioni non validi. |
-| `3` | Errore Kerberos/LDAP di autenticazione o autorizzazione prima del ciclo sui target. |
-| `4` | Errore di rete, protocollo o runtime prima del ciclo sui target. |
-| `5` | Richiesta senza risultati riusciti, inclusi tutti i target falliti o saltati. |
+| `0` | All requested targets succeeded, or enumeration completed, including with no matches. |
+| `1` | At least one result and at least one failed or skipped target. |
+| `2` | Invalid input, local file, or option combination. |
+| `3` | Kerberos/LDAP authentication or authorization error before the target loop. |
+| `4` | Network, protocol, or runtime error before the target loop. |
+| `5` | No successful request results, including when all targets failed or were skipped. |
 
-## Sviluppo e test
+## Development and testing
 
 ```text
 python -m pytest -m "not lab" -q
 python -m pip check
 ```
 
-I test `lab` sono opzionali. Configurare `ORPHEUS_LAB_DC`, `ORPHEUS_LAB_DOMAIN`,
-`ORPHEUS_LAB_USERNAME` e `ORPHEUS_LAB_PASSWORD`; per gli scenari dedicati anche
-`ORPHEUS_LAB_ASREP_USER` e `ORPHEUS_LAB_SPN_USER`. Eseguirli con
-`python -m pytest -m lab -q`. Non salvare credenziali o risultati nel progetto.
+The `lab` tests are optional. Set `ORPHEUS_LAB_DC`, `ORPHEUS_LAB_DOMAIN`,
+`ORPHEUS_LAB_USERNAME`, and `ORPHEUS_LAB_PASSWORD`; specific scenarios also use
+`ORPHEUS_LAB_ASREP_USER` and `ORPHEUS_LAB_SPN_USER`. Run them with
+`python -m pytest -m lab -q`. Do not store credentials or results in the project.
 
-| File | Responsabilità |
+| File | Responsibility |
 | --- | --- |
-| `pyproject.toml` | Installazione, comando `orpheus` e configurazione dei test. |
-| `orpheus.py` | CLI, REPL e avvio dello script figlio. |
-| `GetUserSPNs.py` | Enumerazione LDAP SPN, acquisizione TGT e richieste TGS. |
-| `GetNPUsers.py` | Enumerazione degli account senza preautenticazione e richieste AS-REP. |
-| `orpheus_kerberos.py` | Estensioni Kerberos e trasporto TCP locale con timeout di 10 secondi. |
-| `orpheus_runtime.py` | Validazioni, conteggi, codici di uscita e output atomico. |
-| `tests/` | Test offline e integrazione di laboratorio. |
+| `pyproject.toml` | Installation, the `orpheus` command, and test configuration. |
+| `orpheus.py` | CLI, REPL, and child script execution. |
+| `GetUserSPNs.py` | LDAP SPN enumeration, TGT acquisition, and TGS requests. |
+| `GetNPUsers.py` | Enumeration of accounts without preauthentication and AS-REP requests. |
+| `orpheus_kerberos.py` | Kerberos extensions and local TCP transport with a 10-second timeout. |
+| `orpheus_runtime.py` | Validation, counters, exit codes, and atomic output. |
+| `tests/` | Offline tests and laboratory integration. |
 
-## Licenza
+## License
 
-I testi GPLv3 di Orpheus e delle licenze Impacket sono conservati in [LICENSE](LICENSE).
-Le attribuzioni originali restano nei sorgenti.
+The Orpheus GPLv3 and Impacket license texts are preserved in [LICENSE](LICENSE).
+Original attribution remains in the source files.
 
 This product includes software developed by SecureAuth Corporation (https://www.secureauth.com/) and Fortra (https://www.fortra.com).
